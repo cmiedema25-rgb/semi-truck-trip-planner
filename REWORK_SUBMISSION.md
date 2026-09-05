@@ -2,45 +2,34 @@
 
 **Repo URL:** https://github.com/cmiedema25-rgb/semi-truck-trip-planner  
 
-**Title:** Semi Truck Trip Planner (HGV routing + dispatch ROI for Class-8)
+**Title:** Long-Haul Semi Truck Trip Planner (~2000 mi OTR + HOS aids)
 
-**One-liner:** Destination-first Class-8 trip planner that returns HGV-oriented distance/ETA/steps plus an honest illustrative Trip ROI card (time saved vs manual truck-aware lookup).
+**One-liner:** Destination-first Class-8 planner for ~2,000-mile lanes — HGV routing, multi-day HOS sketch, fuel/rest cadence, and illustrative dispatch ROI.
 
-**Description (short):**  
-Drivers and dispatchers enter a destination (origin optional; defaults to home terminal). The app geocodes, requests an HGV / truck routing profile, and returns a route card: miles, ETA, turn-by-turn summary, map link, editable Class-8 constraints (height, width, length, weight, axles, hazmat), and a **Trip ROI** panel with transparent assumptions (manual ~15 min vs tool ~2 min → 13 min saved; illustrative labor math at $35/hr). Gradio trip-planner bot + Typer CLI + offline mock for `make verify`. Honest disclaimer — **no “100% legal route” claim**; all $ figures labeled illustrative/synthetic demo.
+**Description:**  
+OTR drivers/dispatch enter a long-haul destination (origin optional; defaults to Ontario CA home terminal). Returns HGV-oriented miles/driving hours, corridor steps, map link, editable 53' dry van constraints, **4-day illustrative HOS plan** for the retained **LA→Chicago (~2,010 mi)** demo, fuel/rest cadence, and a transparent **Trip ROI** card. Gradio bot + Typer CLI + offline mock CI. No “100% legal” claim; HOS is a planning aid only; $ figures labeled illustrative/synthetic.
 
 **Category:** Workflow Automation  
+**Alt:** AI Integration & APIs  
 
-**Alt category:** AI Integration & APIs  
+**Skills:** Workflow Automation · AI Integration & APIs · Python · AI Agents & Assistants  
 
-**Skills (select):**
-- Workflow Automation
-- AI Integration & APIs
-- Python
-- AI Agents & Assistants
+**Demo video:** _(Loom/Unlisted URL — VIDEO_SCRIPT.md)_
 
-**Do not select:** Multimodal, RLHF, Fine-tuning, Document AI, AI Safety, Prompt Engineering
-
-**Demo video:** _(paste Loom/Unlisted URL after recording — follow VIDEO_SCRIPT.md; show real UI + ROI card)_
-
-**Honest outcome / ROI numbers (synthetic scenario — not fake customers):**
+**Honest outcomes (synthetic demo):**
 
 | Metric | Value |
 |--------|-------|
-| Mock trip | Dallas yard → Houston warehouse |
-| Route | **328500 m (~204.1 mi), 14100 s (3h 55m)** |
-| Manual estimate | **15 min** |
-| With this tool | **2 min** |
-| Time saved / trip | **13 min (~87%)** |
-| Illustrative labor / trip | **13/60 × $35 ≈ $7.58** |
-| At 20 trips/day | **~4.3 hours / ~$152 illustrative** |
-| pytest | **20+ passed** offline via mock |
+| Lane | Ontario CA → Chicago IL |
+| Distance | **~2,010 mi (3234781 m)** |
+| Driving time | **~36.5 h (131564 s)** |
+| HOS days (illustrative 11-hr) | **4** |
+| Manual plan | **32 min** |
+| With tool | **4 min** |
+| Time saved | **28 min (~87.5%)** |
+| Illustrative $/trip | **$16.33** (28/60 × $35) |
+| @ 8 long-haul/day | **~3.7 h / ~$131 illustrative** |
 
-Label in submission text: *“Illustrative scenario math from documented assumptions — not audited customer savings.”*
+*Illustrative scenario math — not audited customer savings.*
 
-**Proof links:**
-- Skills map: `docs/PROOF_OF_SKILLS.md`
-- Evidence: `evidence/trip-report.json`, `evidence/mock_trip_dallas_houston.json`
-- Verification: `evidence/VERIFICATION.md`
-- Video script: `VIDEO_SCRIPT.md`
-- Demo one-pager: `DEMO.md`
+**Proof:** `docs/PROOF_OF_SKILLS.md` · `evidence/trip-report.json` · `evidence/VERIFICATION.md` · `VIDEO_SCRIPT.md`

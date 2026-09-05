@@ -1,40 +1,23 @@
-# Demo one-pager (Rework paste)
+# Demo one-pager — Long-Haul Semi Truck Trip Planner
 
 ## What it is
-Destination-first **semi-truck trip planner**: enter a delivery address (origin optional), get an **HGV-oriented** route card — distance, ETA, steps, map link, Class-8 vehicle constraints.
+Destination-first **~2,000-mile Class-8 OTR** planner: HGV route card, multi-day HOS sketch, fuel/rest cadence, illustrative dispatch ROI.
 
-## How to run (60 seconds)
+## Run (60 seconds)
 ```bash
 git clone https://github.com/cmiedema25-rgb/semi-truck-trip-planner.git
 cd semi-truck-trip-planner && make verify && make ui
 ```
-Open http://127.0.0.1:7860 → Destination `Houston warehouse` → Plan truck route.
+Open http://127.0.0.1:7860 → Destination Chicago / Origin Ontario CA → Plan.
 
-## Offline proof numbers (mock)
+## Offline proof (mock)
 | Metric | Value |
 |--------|-------|
-| Scenario | Dallas yard → Houston warehouse |
-| distance_m | **328500** |
-| duration_s | **14100** |
-| Distance | **~204.1 mi** |
-| ETA | **3h 55m** |
-| Steps | 4 |
-
-## Live routing
-Set `ORS_API_KEY` from https://openrouteservice.org/dev/#/signup → geocode + `driving-hgv`.
+| Lane | Ontario CA → Chicago IL |
+| distance_m | **3234781** (~2010 mi) |
+| duration_s | **131564** (~36.5 h) |
+| HOS days | **4** |
+| ROI | 32→4 min; **$16.33**/trip; **~$131**/day @8 |
 
 ## Disclaimer
-Uses HGV / truck profile when supported. **Not** a guarantee of fully legal routes for every vehicle/jurisdiction. Verify dimensions, permits, and local restrictions.
-
-
-## Trip ROI (illustrative scenario)
-
-| Metric | Value |
-|--------|-------|
-| Manual estimate | 15 min |
-| With Semi Truck Trip Planner | 2 min |
-| Time saved | 13 min (~87%) |
-| Illustrative labor value | 13/60 × $35 ≈ **$7.58** this trip |
-| At 20 trips/day | ~**4.3 hours** / ~**$152** illustrative |
-
-Assumptions are editable in `src/truckplan/roi.py`. Dollar figures are **not** customer savings.
+HGV profile when supported. HOS = planning aid only. Not “100% legal.” $ = illustrative.

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class VehicleProfile(BaseModel):
     """Physical / regulatory constraints for a heavy goods vehicle."""
 
-    name: str = "Class-8 53' dry van"
+    name: str = "Class-8 53' dry van (long-haul)"
     height_m: float = Field(default=4.11, description="Overall height in meters (~13'6\")")
     width_m: float = Field(default=2.59, description="Overall width in meters (~8'6\")")
     length_m: float = Field(default=22.86, description="Overall length in meters (~75' combo)")
@@ -95,6 +95,7 @@ class RouteResult(BaseModel):
     map_url: str = ""
     geometry: Optional[list[list[float]]] = None  # [[lon, lat], ...]
     roi: Optional[dict] = None  # TripRoi.model_dump() — illustrative scenario math
+    long_haul: Optional[dict] = None  # LongHaulPlan.model_dump() — HOS / multi-day aid
 
     @property
     def distance_mi(self) -> float:

@@ -31,4 +31,4 @@ jobs:
           TRUCKPLAN_FORCE_MOCK: "1"
         run: |
           truckplan version
-          truckplan route --to "Houston warehouse" --from "Dallas yard" --json | head -c 400
+          truckplan route --to "Chicago warehouse" --from "Ontario CA terminal" --json | head -c 500

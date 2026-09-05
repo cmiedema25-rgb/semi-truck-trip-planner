@@ -13,11 +13,12 @@ from rich.table import Table
 from truckplan import __version__
 from truckplan.nlp import parse_trip_text
 from truckplan.planner import plan_trip
+from truckplan.hos import LongHaulPlan, format_long_haul_plain
 from truckplan.roi import TripRoi, format_roi_plain
 
 app = typer.Typer(
     name="truckplan",
-    help="Semi-truck trip planner — HGV routing for Class-8 vehicles.",
+    help="Long-haul semi truck trip planner — ~2000 mi OTR HGV routing + HOS aids.",
     add_completion=False,
 )
 console = Console()
@@ -31,7 +32,7 @@ DISCLAIMER = (
 
 @app.callback()
 def main() -> None:
-    """Semi-truck trip planner CLI."""
+    """Long-haul semi truck trip planner CLI."""
 
 
 @app.command("version")
@@ -70,7 +71,7 @@ def route_cmd(
     parse_nl: bool = typer.Option(False, "--parse-nl", help="Parse --to as free-text NL"),
     as_json: bool = typer.Option(False, "--json", help="Emit JSON"),
 ) -> None:
-    """Plan an HGV-oriented truck route to a destination."""
+    """Plan a long-haul HGV-oriented truck route to a destination."""
     try:
         result = plan_trip(
             destination=to_addr,
@@ -118,6 +119,8 @@ def route_cmd(
         for i, step in enumerate(result.steps[:25], 1):
             steps.add_row(str(i), step.instruction, f"{step.distance_m / 1609.344:.1f} mi")
         console.print(steps)
+    if result.long_haul:
+        console.print(Panel(format_long_haul_plain(LongHaulPlan.model_validate(result.long_haul)), title="Long-haul / HOS"))
     if result.roi:
         console.print(Panel(format_roi_plain(TripRoi.model_validate(result.roi)), title="Trip ROI"))
     console.print(f"[yellow]{DISCLAIMER}[/yellow]")

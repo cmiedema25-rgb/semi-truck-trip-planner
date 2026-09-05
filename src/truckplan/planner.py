@@ -1,16 +1,17 @@
-"""Trip planning orchestration: geocode → HGV route → summary."""
+"""Trip planning orchestration: geocode → HGV route → long-haul HOS → ROI."""
 
 from __future__ import annotations
 
 from typing import Optional
 
 from truckplan.config import Settings, get_settings
+from truckplan.hos import DEFAULT_HOS, plan_long_haul
 from truckplan.models import PRESETS, RouteResult, VehicleProfile
 from truckplan.nlp import maybe_llm_polish, parse_trip_text, template_summary
-from truckplan.roi import RoiAssumptions, compute_roi
 from truckplan.providers.base import Provider
 from truckplan.providers.mock import MockProvider
 from truckplan.providers.ors import OpenRouteServiceProvider
+from truckplan.roi import RoiAssumptions, compute_roi
 
 
 def get_provider(settings: Optional[Settings] = None) -> Provider:
@@ -59,7 +60,7 @@ def plan_trip(
     settings: Optional[Settings] = None,
     parse_nl: bool = False,
 ) -> RouteResult:
-    """Plan an HGV-oriented route. Destination required; origin defaults to home terminal."""
+    """Plan an HGV-oriented long-haul route. Destination required; origin defaults to home terminal."""
     settings = settings or get_settings()
     provider = provider or get_provider(settings)
 
@@ -105,5 +106,7 @@ def plan_trip(
         openai_key=settings.openai_api_key,
         anthropic_key=settings.anthropic_api_key,
     )
+    lh = plan_long_haul(result.distance_mi, result.duration_s, DEFAULT_HOS)
+    result.long_haul = lh.model_dump()
     result.roi = compute_roi(RoiAssumptions()).model_dump()
     return result

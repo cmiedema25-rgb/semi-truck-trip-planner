@@ -1,51 +1,70 @@
-"""Offline mock provider with a fixed Dallas → Houston sample route."""
+"""Offline mock provider — retained long-haul lane: LA → Chicago (~2,010 mi)."""
 
 from __future__ import annotations
 
 from truckplan.models import GeoPoint, RouteResult, RouteStep, VehicleProfile
 
-# Approximate coords for demo addresses
-DALLAS_YARD = GeoPoint(lat=32.7767, lon=-96.7970, label="1234 Trucking Way, Dallas, TX 75201")
-HOUSTON_WH = GeoPoint(lat=29.7604, lon=-95.3698, label="5600 Warehouse Blvd, Houston, TX 77092")
-
-# Known address fragments → mock points (case-insensitive contains)
-_KNOWN: list[tuple[str, GeoPoint]] = [
-    ("dallas", DALLAS_YARD),
-    ("trucking way", DALLAS_YARD),
-    ("houston", HOUSTON_WH),
-    ("warehouse", HOUSTON_WH),
-]
+# Ontario / LA basin terminal → Chicago warehouse (canonical ~2000-mile demo)
+LA_TERMINAL = GeoPoint(
+    lat=34.0633,
+    lon=-117.6509,
+    label="1200 Commerce Dr, Ontario, CA 91761",
+)
+CHICAGO_WH = GeoPoint(
+    lat=41.8369,
+    lon=-87.6847,
+    label="4400 S Pulaski Rd, Chicago, IL 60632",
+)
 
 _SAMPLE_STEPS = [
     RouteStep(
-        instruction="Head south on I-45 toward Houston",
-        distance_m=180000,
-        duration_s=7200,
-        name="I-45 S",
+        instruction="Depart Ontario CA terminal; merge onto I-15 N toward Barstow / Las Vegas",
+        distance_m=450000,
+        duration_s=18316,
+        name="I-15 N",
     ),
     RouteStep(
-        instruction="Continue on I-45 South through Huntsville",
-        distance_m=120000,
-        duration_s=4500,
-        name="I-45 S",
+        instruction="Continue I-15 N through Utah; join I-70 E toward Denver corridor",
+        distance_m=820000,
+        duration_s=33341,
+        name="I-15 N / I-70 E",
     ),
     RouteStep(
-        instruction="Take exit toward US-290 / Warehouse district",
-        distance_m=25000,
-        duration_s=1800,
-        name="US-290",
+        instruction="I-70 E / I-76 E into Nebraska; I-80 E toward Omaha / Des Moines",
+        distance_m=980000,
+        duration_s=39860,
+        name="I-70 E / I-80 E",
     ),
     RouteStep(
-        instruction="Arrive at destination on Warehouse Blvd",
-        distance_m=3500,
-        duration_s=600,
-        name="Warehouse Blvd",
+        instruction="I-80 E across Iowa; I-55 N / I-294 toward Chicago metro",
+        distance_m=900000,
+        duration_s=36632,
+        name="I-80 E / I-55 N",
     ),
+    RouteStep(
+        instruction="Local approaches to Pulaski Rd warehouse — arrive destination",
+        distance_m=84781,
+        duration_s=3415,
+        name="Chicago local",
+    ),
+]
+# 450+820+980+900+84.781 = 3234.781 km? meters: 3,234,781 ≈ 2010.0 mi
+
+
+_KNOWN: list[tuple[str, GeoPoint]] = [
+    ("ontario", LA_TERMINAL),
+    ("los angeles", LA_TERMINAL),
+    ("la ", LA_TERMINAL),
+    ("california", LA_TERMINAL),
+    ("commerce dr", LA_TERMINAL),
+    ("chicago", CHICAGO_WH),
+    ("pulaski", CHICAGO_WH),
+    ("illinois", CHICAGO_WH),
 ]
 
 
 class MockProvider:
-    """Deterministic provider for CI / offline demos — no network calls."""
+    """Deterministic long-haul provider for CI / offline demos — no network."""
 
     name = "mock"
 
@@ -54,10 +73,10 @@ class MockProvider:
         for key, point in _KNOWN:
             if key in text:
                 return GeoPoint(lat=point.lat, lon=point.lon, label=address)
-        # Default: treat unknown as near Houston (destination-only demos)
-        if "origin" in text or "yard" in text or "terminal" in text:
-            return GeoPoint(lat=DALLAS_YARD.lat, lon=DALLAS_YARD.lon, label=address)
-        return GeoPoint(lat=HOUSTON_WH.lat, lon=HOUSTON_WH.lon, label=address)
+        if any(k in text for k in ("origin", "yard", "terminal", "home")):
+            return GeoPoint(lat=LA_TERMINAL.lat, lon=LA_TERMINAL.lon, label=address)
+        # Default unknown destinations toward Chicago for destination-only demos
+        return GeoPoint(lat=CHICAGO_WH.lat, lon=CHICAGO_WH.lon, label=address)
 
     def route(
         self,
@@ -65,22 +84,16 @@ class MockProvider:
         destination: GeoPoint,
         vehicle: VehicleProfile,
     ) -> RouteResult:
-        distance_m = sum(s.distance_m for s in _SAMPLE_STEPS)
-        duration_s = sum(s.duration_s for s in _SAMPLE_STEPS)
-        map_url = (
-            f"https://www.openstreetmap.org/directions?"
-            f"engine=fossgis_osrm_car&route={origin.lat}%2C{origin.lon}"
-            f"%3B{destination.lat}%2C{destination.lon}"
-        )
+        distance_m = float(sum(s.distance_m for s in _SAMPLE_STEPS))
+        duration_s = float(sum(s.duration_s for s in _SAMPLE_STEPS))
         google_url = (
             f"https://www.google.com/maps/dir/{origin.lat},{origin.lon}/"
             f"{destination.lat},{destination.lon}"
         )
         summary = (
-            f"Mock HGV route from {origin.label or 'origin'} to "
+            f"Mock long-haul HGV route from {origin.label or 'origin'} to "
             f"{destination.label or 'destination'}: "
-            f"{distance_m / 1609.344:.1f} mi, ~{int(duration_s // 3600)}h "
-            f"{int((duration_s % 3600) // 60)}m "
+            f"{distance_m / 1609.344:.0f} mi, ~{duration_s / 3600:.1f} driving hours "
             f"(vehicle: {vehicle.name}, hazmat={vehicle.hazmat})."
         )
         return RouteResult(
@@ -96,18 +109,15 @@ class MockProvider:
             map_url=google_url,
             geometry=[
                 [origin.lon, origin.lat],
-                [-96.5, 31.5],
-                [-95.8, 30.5],
+                [-115.1, 36.1],
+                [-105.0, 39.7],
+                [-96.0, 41.3],
                 [destination.lon, destination.lat],
             ],
         )
 
 
 def sample_trip_dict() -> dict:
-    """Serialize the canonical mock trip for evidence/examples."""
     provider = MockProvider()
-    origin = DALLAS_YARD
-    dest = HOUSTON_WH
-    vehicle = VehicleProfile()
-    result = provider.route(origin, dest, vehicle)
+    result = provider.route(LA_TERMINAL, CHICAGO_WH, VehicleProfile())
     return result.model_dump()

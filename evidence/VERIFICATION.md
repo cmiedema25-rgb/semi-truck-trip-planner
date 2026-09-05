@@ -1,35 +1,32 @@
 # Verification log
 
-Captured locally before publish. Reviewers can reproduce with `make verify` (no API key).
-
 ## Environment
-
-- Date: **2026-09-04 18:42 PDT**
+- Date: **2026-09-04 18:49 PDT**
 - Python: Python 3.13.5
-- Mode: `TRUCKPLAN_FORCE_MOCK=1` (offline mock provider)
+- Mode: `TRUCKPLAN_FORCE_MOCK=1`
 
 ## Command
-
 ```bash
 make verify
 ```
 
 ## Results
-
 | Check | Result |
 |-------|--------|
-| pytest | **23 passed** |
-| distance_m | **328500** |
-| duration_s | **14100** |
-| distance_mi | **204.1** |
-| ETA | **3h 55m** |
-| steps | **4** |
-| ROI time saved | **13 min (~86.7%)** |
-| Illustrative labor / trip | **$7.58** (13/60 × $35/hr) |
-| Daily @ 20 trips | **~4.3 hours / ~$152 illustrative** |
-| Evidence | `evidence/trip-report.json`, `evidence/mock_trip_dallas_houston.json` |
+| pytest | **25 passed** |
+| Scenario | Ontario CA → Chicago IL (~2000 mi long-haul) |
+| distance_m | **3234781** |
+| duration_s | **131564** |
+| distance_mi | **2010.0** |
+| Driving hours | **~36.5** |
+| ETA | **36h 32m** |
+| HOS days (illustrative 11-hr) | **4** |
+| ROI saved | **28 min** (32→4) |
+| Illustrative $/trip | **$16.33** |
+| @ 8 long-haul/day | **~3.7 h / ~$131** |
+| Evidence | `evidence/mock_trip_la_chicago.json`, `evidence/trip-report.json` |
 
-## Disclaimer / ROI labeling
-
-- No "100% legal routes" marketing claim.
-- All dollar figures labeled **illustrative scenario / synthetic demo** — not audited customer savings.
+## Labels
+- No "100% legal routes" claim.
+- HOS = planning aid, not compliance certification.
+- Dollar figures = illustrative scenario / synthetic demo.

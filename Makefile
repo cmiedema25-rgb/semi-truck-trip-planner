@@ -15,8 +15,8 @@ evidence:
 verify: install test evidence
 	@echo ""
 	@echo "=== make verify OK ==="
-	@echo "Mock Dallas→Houston distance_m=328500 duration_s=14100 (~204.1 mi, 3h 55m)"
-	@echo "ROI illustrative: 15→2 min saved 13 min; ~$$7.58/trip; ~$$152/day @20 trips"
+	@echo "Mock Ontario CA→Chicago ~2010 mi: distance_m=3234781 duration_s=131564 (36h 32m, 4 HOS days)"
+	@echo "ROI illustrative: 32→4 min saved 28 min; ~$$16.33/trip; ~$$131/day @8 long-haul dispatches"
 
 ui:
 	TRUCKPLAN_FORCE_MOCK=$${TRUCKPLAN_FORCE_MOCK:-1} python3 -m truckplan.ui

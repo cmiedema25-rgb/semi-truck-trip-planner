@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from truckplan.config import Settings
@@ -18,21 +16,23 @@ def test_force_mock_even_with_key():
     assert isinstance(get_provider(settings), MockProvider)
 
 
-def test_plan_destination_only_offline():
+def test_plan_long_haul_offline():
     result = plan_trip(
-        destination="Houston warehouse",
+        destination="Chicago warehouse",
+        origin="Ontario CA terminal",
         provider=MockProvider(),
-        settings=Settings(ors_api_key=None, truckplan_home_origin="Dallas yard"),
+        settings=Settings(ors_api_key=None, truckplan_home_origin="Ontario CA terminal"),
     )
-    assert result.distance_m == 328500
-    assert "Houston" in result.destination.label or result.destination.lat
-    assert result.summary
-    assert "decision support" in result.summary.lower() or "HGV" in result.summary or "mock" in result.summary.lower()
+    assert result.distance_m == 3234781
+    assert result.long_haul is not None
+    assert result.long_haul["days_required"] == 4
+    assert result.roi is not None
+    assert result.roi["time_saved_minutes"] == 28.0
 
 
 def test_plan_with_nl_hazmat():
     result = plan_trip(
-        destination="to Houston warehouse from Dallas, hazmat",
+        destination="to Chicago from Ontario, hazmat",
         parse_nl=True,
         provider=MockProvider(),
         settings=Settings(ors_api_key=None),

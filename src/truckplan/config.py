@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     )
 
     ors_api_key: Optional[str] = None
-    truckplan_home_origin: str = "1234 Trucking Way, Dallas, TX 75201"
+    truckplan_home_origin: str = "1200 Commerce Dr, Ontario, CA 91761"
     truckplan_force_mock: bool = False
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None

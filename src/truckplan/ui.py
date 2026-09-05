@@ -1,11 +1,10 @@
-"""Gradio trip-planner bot — destination-first UX for drivers/dispatchers."""
+"""Gradio long-haul trip-planner bot — destination-first UX for OTR dispatch."""
 
 from __future__ import annotations
 
-from typing import Optional
-
 import gradio as gr
 
+from truckplan.hos import LongHaulPlan, format_long_haul_markdown
 from truckplan.models import PRESETS
 from truckplan.nlp import parse_trip_text
 from truckplan.planner import plan_trip
@@ -16,17 +15,18 @@ DISCLAIMER = (
     "passenger-only paths when the provider supports it. Legality still depends on vehicle "
     "dimensions, permits, local restrictions, and provider data currency. "
     "This tool does **not** guarantee a fully legal route for every jurisdiction or load. "
-    "Verify with your carrier's compliance process before dispatch."
+    "**HOS / multi-day helpers are planning aids only — not compliance certification.** "
+    "Verify with your ELD, carrier policy, and current FMCSA rules before dispatch."
 )
 
 
 def _format_card(result) -> str:
     lines = [
-        f"### Route card",
+        "### Long-haul route card",
         f"**From:** {result.origin.label}",
         f"**To:** {result.destination.label}",
-        f"**Distance:** {result.distance_mi:.1f} mi",
-        f"**ETA:** {result.format_eta()}",
+        f"**Distance:** {result.distance_mi:.0f} mi",
+        f"**Driving time:** {result.format_eta()} ({result.duration_s / 3600:.1f} h)",
         f"**Provider:** `{result.provider}` / `{result.profile}`",
         f"**Vehicle:** {result.vehicle.name} "
         f"(H={result.vehicle.height_m}m, W={result.vehicle.width_m}m, "
@@ -36,10 +36,12 @@ def _format_card(result) -> str:
         "",
         f"**Summary:** {result.summary}",
         "",
-        "#### Steps",
+        "#### Steps (corridor summary)",
     ]
     for i, step in enumerate(result.steps[:30], 1):
-        lines.append(f"{i}. {step.instruction} ({step.distance_m / 1609.344:.1f} mi)")
+        lines.append(f"{i}. {step.instruction} ({step.distance_m / 1609.344:.0f} mi)")
+    if getattr(result, "long_haul", None):
+        lines.extend(["", format_long_haul_markdown(LongHaulPlan.model_validate(result.long_haul))])
     if getattr(result, "roi", None):
         lines.extend(["", format_roi_markdown(TripRoi.model_validate(result.roi))])
     lines.extend(["", "---", DISCLAIMER])
@@ -59,7 +61,7 @@ def plan_from_form(
     use_nl: bool,
 ) -> str:
     if not (destination or "").strip():
-        return "⚠️ Destination is required (destination-only UX supported — origin optional)."
+        return "⚠️ Destination is required (destination-only UX supported — origin defaults to home terminal)."
     try:
         result = plan_trip(
             destination=destination.strip(),
@@ -79,10 +81,12 @@ def plan_from_form(
 
 
 def plan_from_chat(message: str, history: list) -> str:
-    """Bot-style: free text → parse → plan."""
     parsed = parse_trip_text(message)
     if not parsed.destination:
-        return "Tell me where you're going — e.g. `Houston warehouse` or `to Austin from Dallas yard, hazmat`."
+        return (
+            "Tell me the long-haul destination — e.g. `Chicago IL` or "
+            "`to Chicago from Ontario CA terminal, hazmat`."
+        )
     try:
         result = plan_trip(
             destination=parsed.destination,
@@ -98,34 +102,37 @@ def plan_from_chat(message: str, history: list) -> str:
 def build_app() -> gr.Blocks:
     presets = list(PRESETS.keys())
     default = PRESETS["dry_van"]
-    with gr.Blocks(title="Semi Truck Trip Planner") as demo:
+    with gr.Blocks(title="Long-Haul Semi Truck Trip Planner") as demo:
         gr.Markdown(
-            "# 🚛 Semi Truck Trip Planner\n"
-            "Destination-first HGV routing for Class-8 semis. "
-            "Optional origin defaults to your home terminal.\n\n"
+            "# 🚛 Long-Haul Semi Truck Trip Planner\n"
+            "Plan **~2,000-mile Class-8 OTR** trips: destination-first HGV routing, "
+            "multi-day / HOS sketch, fuel & rest cadence, and an honest dispatch ROI card.\n\n"
+            "Demo lane: **Ontario, CA → Chicago, IL (~2,010 mi)**.\n\n"
             + DISCLAIMER
         )
         with gr.Tab("Route form"):
             with gr.Row():
                 destination = gr.Textbox(
                     label="Destination (required)",
-                    placeholder="5600 Warehouse Blvd, Houston, TX 77092",
+                    placeholder="4400 S Pulaski Rd, Chicago, IL 60632",
+                    value="4400 S Pulaski Rd, Chicago, IL 60632",
                 )
                 origin = gr.Textbox(
-                    label="Origin (optional)",
-                    placeholder="Leave blank for home terminal",
+                    label="Origin (optional — default home terminal)",
+                    placeholder="1200 Commerce Dr, Ontario, CA 91761",
+                    value="1200 Commerce Dr, Ontario, CA 91761",
                 )
             with gr.Row():
-                preset = gr.Dropdown(presets, value="dry_van", label="Vehicle preset")
+                preset = gr.Dropdown(presets, value="dry_van", label="Vehicle preset (53' long-haul)")
                 hazmat = gr.Checkbox(label="Hazmat", value=False)
                 use_nl = gr.Checkbox(label="Parse destination as NL", value=False)
-            with gr.Accordion("Vehicle constraints (editable Class-8 defaults)", open=False):
+            with gr.Accordion("Vehicle constraints (editable Class-8 long-haul defaults)", open=False):
                 height_m = gr.Number(value=default.height_m, label="Height (m) ~13'6\"")
                 width_m = gr.Number(value=default.width_m, label="Width (m) ~8'6\"")
                 length_m = gr.Number(value=default.length_m, label="Length (m) ~75' combo")
                 weight_t = gr.Number(value=default.weight_t, label="Weight (metric tons) ~80k lb")
                 axles = gr.Number(value=default.axles, label="Axles", precision=0)
-            submit = gr.Button("Plan truck route", variant="primary")
+            submit = gr.Button("Plan long-haul truck route", variant="primary")
             out = gr.Markdown()
             submit.click(
                 plan_from_form,
@@ -136,9 +143,12 @@ def build_app() -> gr.Blocks:
                 outputs=out,
             )
         with gr.Tab("Trip bot"):
-            gr.Markdown("Chat-style assistant: type a destination or a short trip sentence.")
+            gr.Markdown("Chat-style assistant for long-haul destinations / short trip sentences.")
             chatbot = gr.Chatbot(type="messages")
-            msg = gr.Textbox(label="Message", placeholder="to Houston warehouse from Dallas, hazmat")
+            msg = gr.Textbox(
+                label="Message",
+                placeholder="to Chicago IL from Ontario CA, hazmat",
+            )
             clear = gr.Button("Clear")
 
             def respond(message: str, history: list):
