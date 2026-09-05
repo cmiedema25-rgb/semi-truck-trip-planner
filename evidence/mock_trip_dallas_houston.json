@@ -1,0 +1,130 @@
+{
+  "generated_at_utc": "2026-09-05T01:40:03.660575+00:00",
+  "scenario": "Dallas yard \u2192 Houston warehouse (Class-8 dry van)",
+  "provider": "mock",
+  "distance_m": 328500.0,
+  "duration_s": 14100.0,
+  "distance_mi": 204.1,
+  "eta": "3h 55m",
+  "steps_count": 4,
+  "vehicle": {
+    "name": "Class-8 53' dry van",
+    "height_m": 4.11,
+    "width_m": 2.59,
+    "length_m": 22.86,
+    "weight_t": 36.29,
+    "axles": 5,
+    "hazmat": false
+  },
+  "map_url": "https://www.google.com/maps/dir/32.7767,-96.797/29.7604,-95.3698",
+  "summary": "Trip plan (mock): Dallas yard \u2192 Houston warehouse. About 204.1 miles, ETA 3h 55m, using Class-8 53' dry van HGV profile. This is decision support \u2014 verify height/weight/local restrictions before dispatch.",
+  "roi": {
+    "assumptions": {
+      "manual_minutes": 15.0,
+      "tool_minutes": 2.0,
+      "dispatcher_rate_usd_per_hour": 35.0,
+      "trips_per_day": 20
+    },
+    "time_saved_minutes": 13.0,
+    "time_saved_pct": 86.7,
+    "illustrative_value_usd": 7.58,
+    "daily_hours_saved": 4.33,
+    "daily_illustrative_value_usd": 151.67,
+    "label": "Illustrative scenario / synthetic demo \u2014 not audited customer savings. No customer logos or billed ROI claimed.",
+    "operational_levers": [
+      "HGV profile applies height/weight/hazmat constraints when the provider supports it \u2014 fewer passenger-route mistakes.",
+      "Repeatable Class-8 vehicle presets reduce re-entry error across shifts.",
+      "Retained trip JSON supports audit, dispatcher handoff, and compliance review."
+    ]
+  },
+  "full_trip": {
+    "origin": {
+      "lat": 32.7767,
+      "lon": -96.797,
+      "label": "1234 Trucking Way, Dallas, TX 75201"
+    },
+    "destination": {
+      "lat": 29.7604,
+      "lon": -95.3698,
+      "label": "5600 Warehouse Blvd, Houston, TX 77092"
+    },
+    "distance_m": 328500.0,
+    "duration_s": 14100.0,
+    "steps": [
+      {
+        "instruction": "Head south on I-45 toward Houston",
+        "distance_m": 180000.0,
+        "duration_s": 7200.0,
+        "name": "I-45 S"
+      },
+      {
+        "instruction": "Continue on I-45 South through Huntsville",
+        "distance_m": 120000.0,
+        "duration_s": 4500.0,
+        "name": "I-45 S"
+      },
+      {
+        "instruction": "Take exit toward US-290 / Warehouse district",
+        "distance_m": 25000.0,
+        "duration_s": 1800.0,
+        "name": "US-290"
+      },
+      {
+        "instruction": "Arrive at destination on Warehouse Blvd",
+        "distance_m": 3500.0,
+        "duration_s": 600.0,
+        "name": "Warehouse Blvd"
+      }
+    ],
+    "vehicle": {
+      "name": "Class-8 53' dry van",
+      "height_m": 4.11,
+      "width_m": 2.59,
+      "length_m": 22.86,
+      "weight_t": 36.29,
+      "axles": 5,
+      "hazmat": false
+    },
+    "provider": "mock",
+    "profile": "driving-hgv (mock)",
+    "summary": "Mock HGV route from 1234 Trucking Way, Dallas, TX 75201 to 5600 Warehouse Blvd, Houston, TX 77092: 204.1 mi, ~3h 55m (vehicle: Class-8 53' dry van, hazmat=False).",
+    "map_url": "https://www.google.com/maps/dir/32.7767,-96.797/29.7604,-95.3698",
+    "geometry": [
+      [
+        -96.797,
+        32.7767
+      ],
+      [
+        -96.5,
+        31.5
+      ],
+      [
+        -95.8,
+        30.5
+      ],
+      [
+        -95.3698,
+        29.7604
+      ]
+    ],
+    "roi": {
+      "assumptions": {
+        "manual_minutes": 15.0,
+        "tool_minutes": 2.0,
+        "dispatcher_rate_usd_per_hour": 35.0,
+        "trips_per_day": 20
+      },
+      "time_saved_minutes": 13.0,
+      "time_saved_pct": 86.7,
+      "illustrative_value_usd": 7.58,
+      "daily_hours_saved": 4.33,
+      "daily_illustrative_value_usd": 151.67,
+      "label": "Illustrative scenario / synthetic demo \u2014 not audited customer savings. No customer logos or billed ROI claimed.",
+      "operational_levers": [
+        "HGV profile applies height/weight/hazmat constraints when the provider supports it \u2014 fewer passenger-route mistakes.",
+        "Repeatable Class-8 vehicle presets reduce re-entry error across shifts.",
+        "Retained trip JSON supports audit, dispatcher handoff, and compliance review."
+      ]
+    }
+  }
+}
